@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { DateInput } from "@/components/ui/DateInput";
 import { AutocompleteInput } from "@/components/ui/AutocompleteInput";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
+import { ChurchPlaceSelect, PLACES } from "@/components/ui/ChurchPlaceSelect";
 import { createMarriage } from "@/app/actions/actionCreateMarriage";
 import { updateMarriage } from "@/app/actions/actionUpdateMarriage";
 
@@ -21,6 +23,8 @@ export function MarriageForm({ initialData, marriageId }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   const [formData, setFormData] = useState(
     initialData || {
@@ -65,6 +69,7 @@ export function MarriageForm({ initialData, marriageId }) {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
+    setFieldErrors({});
 
     try {
       const result = marriageId
@@ -72,12 +77,36 @@ export function MarriageForm({ initialData, marriageId }) {
         : await createMarriage(formData);
 
       if (result.success) {
-        router.push("/venchani");
+        toast.success(
+          marriageId
+            ? "✅ Записот е успешно ажуриран!"
+            : "✅ Записот е успешно креиран!",
+          { duration: 3000 }
+        );
+
+        // Delay redirect to show toast
+        setTimeout(() => {
+          router.push("/venchani");
+        }, 500);
       } else {
-        setError(result.error || "Настана грешка.");
+        const errorMsg = result.error || "Настана грешка.";
+        setError(errorMsg);
+
+        // Parse field errors if available
+        if (result.fieldErrors) {
+          setFieldErrors(result.fieldErrors);
+        }
+
+        toast.error("❌ " + errorMsg);
+
+        // Scroll to top to show error message
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err) {
-      setError("Настана грешка при зачувување.");
+      const errorMsg = "Настана грешка при зачувување.";
+      setError(errorMsg);
+      toast.error("❌ " + errorMsg);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setIsSubmitting(false);
     }
@@ -117,7 +146,7 @@ export function MarriageForm({ initialData, marriageId }) {
         </div>
       )}
 
-      {/* Младоженец */}
+      {/* 1. Младоженец - Основни податоци */}
       <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
         <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           🤵 Младоженец
@@ -130,16 +159,18 @@ export function MarriageForm({ initialData, marriageId }) {
             gender="male"
             value={formData.groom.firstName}
             onChange={(val) => updateField("groom", "firstName", val)}
+            error={fieldErrors["groom.firstName"]}
             required
           />
 
           <AutocompleteInput
             label="Татково име"
-            field="firstName"
+            field="fatherName"
             type="groom"
             gender="male"
             value={formData.groom.fatherName}
             onChange={(val) => updateField("groom", "fatherName", val)}
+            error={fieldErrors["groom.fatherName"]}
             required
           />
 
@@ -149,13 +180,8 @@ export function MarriageForm({ initialData, marriageId }) {
             type="groom"
             value={formData.groom.lastName}
             onChange={(val) => updateField("groom", "lastName", val)}
+            error={fieldErrors["groom.lastName"]}
             required
-          />
-
-          <DateInput
-            label="Датум на раѓање"
-            value={formData.groom.birthDate}
-            onChange={(val) => updateField("groom", "birthDate", val)}
           />
 
           <Input
@@ -168,7 +194,7 @@ export function MarriageForm({ initialData, marriageId }) {
             label="Место на живеење"
             value={formData.groom.residence}
             onChange={(val) => updateField("groom", "residence", val)}
-            options={["Кукуречани"]}
+            options={PLACES}
             allowCustom={true}
           />
 
@@ -195,27 +221,10 @@ export function MarriageForm({ initialData, marriageId }) {
             ]}
             allowCustom={true}
           />
-
-          <Input
-            label="Брачен статус"
-            value={formData.groom.maritalStatus}
-            onChange={(e) =>
-              updateField("groom", "maritalStatus", e.target.value)
-            }
-          />
-
-          <Input
-            label="Во кој брак стапува"
-            type="number"
-            value={formData.groom.marriageNumber}
-            onChange={(e) =>
-              updateField("groom", "marriageNumber", e.target.value)
-            }
-          />
         </div>
       </section>
 
-      {/* Невеста */}
+      {/* 2. Невеста - Основни податоци */}
       <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
         <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           👰 Невеста
@@ -228,16 +237,18 @@ export function MarriageForm({ initialData, marriageId }) {
             gender="female"
             value={formData.bride.firstName}
             onChange={(val) => updateField("bride", "firstName", val)}
+            error={fieldErrors["bride.firstName"]}
             required
           />
 
           <AutocompleteInput
             label="Татково име"
-            field="firstName"
+            field="fatherName"
             type="bride"
             gender="male"
             value={formData.bride.fatherName}
             onChange={(val) => updateField("bride", "fatherName", val)}
+            error={fieldErrors["bride.fatherName"]}
             required
           />
 
@@ -247,13 +258,8 @@ export function MarriageForm({ initialData, marriageId }) {
             type="bride"
             value={formData.bride.lastName}
             onChange={(val) => updateField("bride", "lastName", val)}
+            error={fieldErrors["bride.lastName"]}
             required
-          />
-
-          <DateInput
-            label="Датум на раѓање"
-            value={formData.bride.birthDate}
-            onChange={(val) => updateField("bride", "birthDate", val)}
           />
 
           <Input
@@ -266,7 +272,7 @@ export function MarriageForm({ initialData, marriageId }) {
             label="Место на живеење"
             value={formData.bride.residence}
             onChange={(val) => updateField("bride", "residence", val)}
-            options={["Кукуречани"]}
+            options={PLACES}
             allowCustom={true}
           />
 
@@ -293,9 +299,45 @@ export function MarriageForm({ initialData, marriageId }) {
             ]}
             allowCustom={true}
           />
+        </div>
+      </section>
+
+      {/* 3. Датум на раѓање */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          📅 Датум на раѓање
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <DateInput
+            label="Датум на раѓање - Младоженец"
+            value={formData.groom.birthDate}
+            onChange={(val) => updateField("groom", "birthDate", val)}
+          />
+
+          <DateInput
+            label="Датум на раѓање - Невеста"
+            value={formData.bride.birthDate}
+            onChange={(val) => updateField("bride", "birthDate", val)}
+          />
+        </div>
+      </section>
+
+      {/* 4. Брачен статус и податоци */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          💍 Брачен статус
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <Input
+            label="Брачен статус - Младоженец"
+            value={formData.groom.maritalStatus}
+            onChange={(e) =>
+              updateField("groom", "maritalStatus", e.target.value)
+            }
+          />
 
           <Input
-            label="Брачен статус"
+            label="Брачен статус - Невеста"
             value={formData.bride.maritalStatus}
             onChange={(e) =>
               updateField("bride", "maritalStatus", e.target.value)
@@ -303,7 +345,34 @@ export function MarriageForm({ initialData, marriageId }) {
           />
 
           <Input
-            label="Во кој брак стапува"
+            label="Датум на предпрачен статус - Младоженец"
+            type="date"
+            value={formData.groom.previousStatusDate || ""}
+            onChange={(e) =>
+              updateField("groom", "previousStatusDate", e.target.value)
+            }
+          />
+
+          <Input
+            label="Датум на предпрачен статус - Невеста"
+            type="date"
+            value={formData.bride.previousStatusDate || ""}
+            onChange={(e) =>
+              updateField("bride", "previousStatusDate", e.target.value)
+            }
+          />
+
+          <Input
+            label="Во кој брак стапува - Младоженец"
+            type="number"
+            value={formData.groom.marriageNumber}
+            onChange={(e) =>
+              updateField("groom", "marriageNumber", e.target.value)
+            }
+          />
+
+          <Input
+            label="Во кој брак стапува - Невеста"
             type="number"
             value={formData.bride.marriageNumber}
             onChange={(e) =>
@@ -313,45 +382,64 @@ export function MarriageForm({ initialData, marriageId }) {
         </div>
       </section>
 
-      {/* Венчавање */}
+      {/* 5. Храм и место на венчавање */}
       <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
         <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          ⛪ Венчавање
+          ⛪ Храм и место на венчавање
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <ChurchPlaceSelect
+            churchValue={formData.marriage.church}
+            placeValue={formData.marriage.place}
+            onChurchChange={(val) => updateField("marriage", "church", val)}
+            onPlaceChange={(val) => updateField("marriage", "place", val)}
+            autoPopulate={true}
+          />
+        </div>
+      </section>
+
+      {/* 6. Датум на венчавање */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          💒 Датум на венчавање
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <DateInput
             label="Датум на венчавање"
             value={formData.marriage.date}
             onChange={(val) => updateField("marriage", "date", val)}
+            error={
+              fieldErrors["marriage.date.day"] ||
+              fieldErrors["marriage.date.month"] ||
+              fieldErrors["marriage.date.year"]
+            }
             required
           />
+        </div>
+      </section>
 
-          <Select
-            label="Храм"
-            value={formData.marriage.church}
-            onChange={(val) => updateField("marriage", "church", val)}
-            options={["Свети Никола", "Св. Петка", "Св. Богородица"]}
-            allowCustom={true}
-          />
-
-          <Select
-            label="Место"
-            value={formData.marriage.place}
-            onChange={(val) => updateField("marriage", "place", val)}
-            options={["Кукуречани"]}
-            allowCustom={true}
-          />
-
+      {/* 7. Свештеник */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          ✟ Свештеник
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <AutocompleteInput
-            label="Свештеник (име и презиме)"
+            label="Име и презиме на Свештеникот"
             field="priest"
             type="marriage"
             value={formData.marriage.priestName}
             onChange={(val) => updateField("marriage", "priestName", val)}
           />
+        </div>
+      </section>
 
-          <div></div>
-
+      {/* 8. Кум и Стар сват */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          👥 Кум и Стар сват
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <AutocompleteInput
             label="Кум - Име"
             field="firstName"

@@ -12,7 +12,19 @@ export default async function DeathDetailPage({ params }) {
   }
 
   const formatDate = (dateObj) => {
-    if (!dateObj || !dateObj.day) return "-";
+    if (!dateObj || !dateObj.year) return "-";
+
+    // Year only
+    if (!dateObj.month && !dateObj.day) {
+      return `${dateObj.year}`;
+    }
+
+    // Year + Month
+    if (dateObj.month && !dateObj.day) {
+      return `${dateObj.month}/${dateObj.year}`;
+    }
+
+    // Full date
     return `${dateObj.day}/${dateObj.month}/${dateObj.year}`;
   };
 
@@ -113,7 +125,7 @@ export default async function DeathDetailPage({ params }) {
                 ? "Да"
                 : death.burial.confessed === false
                 ? "Не"
-                : "-"
+                : death.burial.confessed || "-"
             }
           />
         </div>

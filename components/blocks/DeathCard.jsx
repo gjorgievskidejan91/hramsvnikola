@@ -1,5 +1,23 @@
 import Link from "next/link";
 
+// Helper function to format partial dates
+function formatDate(dateObj) {
+  if (!dateObj || !dateObj.year) return "-";
+
+  // Year only
+  if (!dateObj.month && !dateObj.day) {
+    return `${dateObj.year}`;
+  }
+
+  // Year + Month
+  if (dateObj.month && !dateObj.day) {
+    return `${dateObj.month}/${dateObj.year}`;
+  }
+
+  // Full date
+  return `${dateObj.day}/${dateObj.month}/${dateObj.year}`;
+}
+
 /**
  * Mobile-friendly card for death records
  */
@@ -11,8 +29,7 @@ export function DeathCard({ death }) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-              ✝️ {death.death.date.day}/{death.death.date.month}/
-              {death.death.date.year}
+              ✝️ {formatDate(death.death.date)}
             </span>
             {death.pageNumber && (
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
@@ -63,14 +80,13 @@ export function DeathCard({ death }) {
             </div>
           )}
 
-          {death.burial.date && (
+          {death.burial.date?.year && (
             <div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 Погреб
               </div>
               <div className="text-sm text-gray-700 dark:text-gray-300">
-                {death.burial.date.day}/{death.burial.date.month}/
-                {death.burial.date.year}
+                {formatDate(death.burial.date)}
                 {death.burial.place && ` - ${death.burial.place}`}
               </div>
             </div>

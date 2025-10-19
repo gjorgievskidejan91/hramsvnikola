@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { deleteMarriage } from "@/app/actions/actionDeleteMarriage";
 
 export function DeleteButton({ marriageId }) {
@@ -18,12 +19,21 @@ export function DeleteButton({ marriageId }) {
     }
 
     setIsDeleting(true);
+
+    // Show loading toast
+    const loadingToast = toast.loading("Се брише записот...");
+
     const result = await deleteMarriage(marriageId);
 
+    toast.dismiss(loadingToast);
+
     if (result.success) {
-      router.push("/venchani");
+      toast.success("✅ Записот е успешно избришан!");
+      setTimeout(() => {
+        router.push("/venchani");
+      }, 500);
     } else {
-      alert(result.error || "Настана грешка");
+      toast.error("❌ " + (result.error || "Настана грешка"));
       setIsDeleting(false);
     }
   };

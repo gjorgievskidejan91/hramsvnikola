@@ -99,238 +99,219 @@ export function ChristeningForm({ initialData, christeningId }) {
         </div>
       )}
 
-      {/* Податоци за Детето */}
+      {/* Форма по редослед од книгата */}
       <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          👶 Податоци за Детето
-        </h2>
-
-        {/* Пол - Toggle Buttons */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Пол <span className="text-red-500 ml-1">*</span>
-          </label>
-          <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
-            <button
-              type="button"
-              onClick={() => updateField("child", "gender", "Машки")}
-              className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors ${
-                formData.child.gender === "Машки"
-                  ? "bg-primary-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              Машки
-            </button>
-            <button
-              type="button"
-              onClick={() => updateField("child", "gender", "Женски")}
-              className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors border-l border-gray-300 dark:border-gray-600 ${
-                formData.child.gender === "Женски"
-                  ? "bg-primary-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              Женски
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <AutocompleteInput
-            label="Име на детето"
-            field="firstName"
-            type="child"
-            gender={
-              formData.child.gender === "Машки"
-                ? "male"
-                : formData.child.gender === "Женски"
-                ? "female"
-                : undefined
-            }
-            value={formData.child.firstName}
-            onChange={(val) => updateField("child", "firstName", val)}
-            required
-          />
-
-          <Input
-            label="Презиме"
-            value={formData.child.lastName}
-            onChange={(e) => updateField("child", "lastName", e.target.value)}
-          />
-
-          <DateInput
-            label="Датум на раѓање"
-            value={formData.child.birthDate}
-            onChange={(val) => updateField("child", "birthDate", val)}
-          />
-
-          <Input
-            label="Место на раѓање"
-            value={formData.child.birthPlace}
-            onChange={(e) => updateField("child", "birthPlace", e.target.value)}
-          />
-        </div>
-
-        {/* Дали е близнак */}
-        <div className="mt-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Дали е близнак?
-          </label>
-          <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, isTwin: false })}
-              className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors ${
-                formData.isTwin === false
-                  ? "bg-primary-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              Не
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, isTwin: true })}
-              className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors border-l border-gray-300 dark:border-gray-600 ${
-                formData.isTwin === true
-                  ? "bg-primary-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              Да
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Податоци за Родители */}
-      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          👨‍👩‍👧 Податоци за Родители
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <AutocompleteInput
-            label="Име на Татко"
-            field="firstName"
-            type="father"
-            gender="male"
-            value={formData.father.firstName}
-            onChange={(val) => updateField("father", "firstName", val)}
-            required
-          />
-
-          <AutocompleteInput
-            label="Презиме на Татко"
-            field="lastName"
-            type="father"
-            value={formData.father.lastName}
-            onChange={(val) => updateField("father", "lastName", val)}
-            required
-          />
-
-          <AutocompleteInput
-            label="Име на Мајка"
-            field="firstName"
-            type="mother"
-            gender="female"
-            value={formData.mother.firstName}
-            onChange={(val) => updateField("mother", "firstName", val)}
-            required
-          />
-
-          <AutocompleteInput
-            label="Презиме на Мајка"
-            field="lastName"
-            type="mother"
-            value={formData.mother.lastName}
-            onChange={(val) => updateField("mother", "lastName", val)}
-            required
-          />
-
-          <Input
-            label="Кое дете по ред е на мајката"
-            type="number"
-            min="1"
-            placeholder="Број..."
-            value={formData.mother.childOrderNumber}
-            onChange={(e) =>
-              updateField("mother", "childOrderNumber", e.target.value)
-            }
-          />
-        </div>
-      </section>
-
-      {/* Податоци за Крштевањето */}
-      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          ⛪ Податоци за Крштевањето
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <DateInput
-            label="Датум на крштевање"
-            value={formData.christening.date}
-            onChange={(val) => updateField("christening", "date", val)}
-            required
-          />
-
-          <Input
-            label="Храм на крштевање"
-            value={formData.christening.church}
-            onChange={(e) =>
-              updateField("christening", "church", e.target.value)
-            }
-          />
-
-          <Input
-            label="Место на крштевање"
-            value={formData.christening.place}
-            onChange={(e) =>
-              updateField("christening", "place", e.target.value)
-            }
-          />
-
-          <AutocompleteInput
-            label="Свештеник (име и презиме)"
-            field="priest"
-            type="christening"
-            value={formData.christening.priestName}
-            onChange={(val) => updateField("christening", "priestName", val)}
-          />
-
-          <AutocompleteInput
-            label="Име на Кум"
-            field="firstName"
-            type="godparent"
-            value={formData.christening.godparentFirstName}
-            onChange={(val) =>
-              updateField("christening", "godparentFirstName", val)
-            }
-          />
-
-          <AutocompleteInput
-            label="Презиме на Кум"
-            field="lastName"
-            type="godparent"
-            value={formData.christening.godparentLastName}
-            onChange={(val) =>
-              updateField("christening", "godparentLastName", val)
-            }
-          />
-        </div>
-      </section>
-
-      {/* Дополнителни Податоци */}
-      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          📋 Дополнителни Податоци
+        <h2 className="text-lg sm:text-xl font-semibold mb-6 text-gray-900 dark:text-white">
+          🙏 Книга на Крстени
         </h2>
 
         <div className="space-y-6">
-          {/* Граѓански законо */}
-          <div>
+          {/* 1. Место на раѓање */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <Input
+              label="Место на раѓање"
+              value={formData.child.birthPlace}
+              onChange={(e) =>
+                updateField("child", "birthPlace", e.target.value)
+              }
+            />
+          </div>
+
+          {/* 2. Датум на раѓање */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <DateInput
+              label="Ден, месец и година на раѓање"
+              value={formData.child.birthDate}
+              onChange={(val) => updateField("child", "birthDate", val)}
+            />
+          </div>
+
+          {/* 3. Храм и место на крштевање */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <Input
+              label="Храм на крштевање"
+              value={formData.christening.church}
+              onChange={(e) =>
+                updateField("christening", "church", e.target.value)
+              }
+            />
+
+            <Input
+              label="Место на крштевање"
+              value={formData.christening.place}
+              onChange={(e) =>
+                updateField("christening", "place", e.target.value)
+              }
+            />
+          </div>
+
+          {/* 4. Датум на крштевање */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <DateInput
+              label="Ден, месец и година на крштевање"
+              value={formData.christening.date}
+              onChange={(val) => updateField("christening", "date", val)}
+              required
+            />
+          </div>
+
+          {/* 5. Име на детето и пол */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 className="text-base sm:text-lg font-medium mb-4 text-gray-900 dark:text-white">
+              Податоци за детето
+            </h3>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Пол <span className="text-red-500 ml-1">*</span>
+              </label>
+              <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => updateField("child", "gender", "Машки")}
+                  className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors ${
+                    formData.child.gender === "Машки"
+                      ? "bg-primary-600 text-white"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  Машки
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateField("child", "gender", "Женски")}
+                  className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors border-l border-gray-300 dark:border-gray-600 ${
+                    formData.child.gender === "Женски"
+                      ? "bg-primary-600 text-white"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  Женски
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <AutocompleteInput
+                label="Име на детето"
+                field="firstName"
+                type="child"
+                gender={
+                  formData.child.gender === "Машки"
+                    ? "male"
+                    : formData.child.gender === "Женски"
+                    ? "female"
+                    : undefined
+                }
+                value={formData.child.firstName}
+                onChange={(val) => updateField("child", "firstName", val)}
+                required
+              />
+
+              <Input
+                label="Презиме на детето"
+                value={formData.child.lastName}
+                onChange={(e) =>
+                  updateField("child", "lastName", e.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          {/* 6. Родители - Татко и Мајка */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 className="text-base sm:text-lg font-medium mb-4 text-gray-900 dark:text-white">
+              Родители
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <AutocompleteInput
+                label="Име на Татко"
+                field="firstName"
+                type="father"
+                gender="male"
+                value={formData.father.firstName}
+                onChange={(val) => updateField("father", "firstName", val)}
+                required
+              />
+
+              <AutocompleteInput
+                label="Презиме на Татко"
+                field="lastName"
+                type="father"
+                value={formData.father.lastName}
+                onChange={(val) => updateField("father", "lastName", val)}
+                required
+              />
+
+              <AutocompleteInput
+                label="Име на Мајка"
+                field="firstName"
+                type="mother"
+                gender="female"
+                value={formData.mother.firstName}
+                onChange={(val) => updateField("mother", "firstName", val)}
+                required
+              />
+
+              <AutocompleteInput
+                label="Презиме на Мајка"
+                field="lastName"
+                type="mother"
+                value={formData.mother.lastName}
+                onChange={(val) => updateField("mother", "lastName", val)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* 7. Свештеник */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <AutocompleteInput
+                label="Свештеник (име и презиме)"
+                field="priest"
+                type="christening"
+                value={formData.christening.priestName}
+                onChange={(val) =>
+                  updateField("christening", "priestName", val)
+                }
+              />
+            </div>
+          </div>
+
+          {/* 8. Име и презиме на Кум */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 className="text-base sm:text-lg font-medium mb-4 text-gray-900 dark:text-white">
+              Кум
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <AutocompleteInput
+                label="Име на Кум"
+                field="firstName"
+                type="godparent"
+                gender="male"
+                value={formData.christening.godparentFirstName}
+                onChange={(val) =>
+                  updateField("christening", "godparentFirstName", val)
+                }
+              />
+
+              <AutocompleteInput
+                label="Презиме на Кум"
+                field="lastName"
+                type="godparent"
+                value={formData.christening.godparentLastName}
+                onChange={(val) =>
+                  updateField("christening", "godparentLastName", val)
+                }
+              />
+            </div>
+          </div>
+
+          {/* 9. Граѓански законо */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Дали е детето граѓански законо?
             </label>
@@ -364,8 +345,8 @@ export function ChristeningForm({ initialData, christeningId }) {
             </div>
           </div>
 
-          {/* Црковно брачно */}
-          <div>
+          {/* 10. Црковно брачно */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Дали е детето црковно брачно?
             </label>
@@ -398,34 +379,80 @@ export function ChristeningForm({ initialData, christeningId }) {
               </button>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Забелешки и Извор */}
-      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          📝 Забелешки и Извор
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <Input
-            label="Страна од оригинална книга"
-            placeholder="Број на страна..."
-            value={formData.pageNumber}
-            onChange={(e) =>
-              setFormData({ ...formData, pageNumber: e.target.value })
-            }
-          />
-          <div></div>
-        </div>
-        <div className="mt-4">
-          <Textarea
-            label="Забелешка"
-            value={formData.notes}
-            onChange={(e) =>
-              setFormData({ ...formData, notes: e.target.value })
-            }
-            rows={4}
-          />
+          {/* 11. Кое дете по ред */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <Input
+                label="Кое дете по ред е на мајката"
+                type="number"
+                min="1"
+                placeholder="Број..."
+                value={formData.mother.childOrderNumber}
+                onChange={(e) =>
+                  updateField("mother", "childOrderNumber", e.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          {/* 12. Дали е близнак */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Дали е близнак?
+            </label>
+            <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-600 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, isTwin: false })}
+                className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors ${
+                  formData.isTwin === false
+                    ? "bg-primary-600 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                }`}
+              >
+                Не
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, isTwin: true })}
+                className={`px-6 py-3 sm:px-8 sm:py-2.5 text-sm font-medium transition-colors border-l border-gray-300 dark:border-gray-600 ${
+                  formData.isTwin === true
+                    ? "bg-primary-600 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                }`}
+              >
+                Да
+              </button>
+            </div>
+          </div>
+
+          {/* 13. Забелешка и страна */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 className="text-base sm:text-lg font-medium mb-4 text-gray-900 dark:text-white">
+              Забелешки и извор
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4">
+              <Input
+                label="Страна од оригинална книга"
+                placeholder="Број на страна..."
+                value={formData.pageNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, pageNumber: e.target.value })
+                }
+              />
+            </div>
+
+            <Textarea
+              label="Забелешка"
+              value={formData.notes}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              rows={4}
+            />
+          </div>
         </div>
       </section>
 

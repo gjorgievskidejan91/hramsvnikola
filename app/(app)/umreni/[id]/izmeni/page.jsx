@@ -56,7 +56,12 @@ export default async function IzmeniPage({ params }) {
       },
       place: death.burial.place || "",
       priestName: death.burial.priestName || "",
-      confessed: death.burial.confessed ?? "",
+      confessed:
+        death.burial.confessed === true
+          ? "Да"
+          : death.burial.confessed === false
+          ? "Не"
+          : death.burial.confessed || "Не",
     },
     notes: death.notes || "",
     pageNumber: death.pageNumber?.toString() || "",

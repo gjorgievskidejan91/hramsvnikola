@@ -36,9 +36,17 @@ export async function createMarriage(formData) {
     console.error("Грешка при креирање:", error);
 
     if (error.name === "ZodError") {
+      // Parse field errors
+      const fieldErrors = {};
+      error.errors.forEach((err) => {
+        const path = err.path.join(".");
+        fieldErrors[path] = err.message;
+      });
+
       return {
         success: false,
         error: "Невалидни податоци. Проверете ги полињата.",
+        fieldErrors,
       };
     }
 

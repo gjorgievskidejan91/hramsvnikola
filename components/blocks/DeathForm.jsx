@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { DateInput } from "@/components/ui/DateInput";
+import { DateInputPartial } from "@/components/ui/DateInputPartial";
 import { AutocompleteInput } from "@/components/ui/AutocompleteInput";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
+import { RadioToggle } from "@/components/ui/RadioToggle";
+import { PLACES } from "@/components/ui/ChurchPlaceSelect";
 import { createDeath } from "@/app/actions/actionCreateDeath";
 import { updateDeath } from "@/app/actions/actionUpdateDeath";
 
@@ -21,6 +25,8 @@ export function DeathForm({ initialData, deathId }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const formRef = useRef(null);
 
   const [formData, setFormData] = useState(
     initialData || {
@@ -32,7 +38,7 @@ export function DeathForm({ initialData, deathId }) {
         maritalStatus: "",
         religion: "Православна",
         gender: "",
-        birthPlace: "",
+        birthPlace: "Битола",
         birthDate: { day: "", month: "", year: "" },
       },
       death: {
@@ -44,7 +50,7 @@ export function DeathForm({ initialData, deathId }) {
         date: { day: "", month: "", year: "" },
         place: "Кукуречани",
         priestName: "",
-        confessed: "",
+        confessed: "Не",
       },
       notes: "",
       pageNumber: "",
@@ -55,6 +61,7 @@ export function DeathForm({ initialData, deathId }) {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
+    setFieldErrors({});
 
     try {
       const result = deathId
@@ -62,12 +69,34 @@ export function DeathForm({ initialData, deathId }) {
         : await createDeath(formData);
 
       if (result.success) {
-        router.push("/umreni");
+        toast.success(
+          deathId
+            ? "✅ Записот е успешно ажуриран!"
+            : "✅ Записот е успешно креиран!",
+          { duration: 3000 }
+        );
+
+        // Delay redirect to show toast
+        setTimeout(() => {
+          router.push("/umreni");
+        }, 500);
       } else {
-        setError(result.error || "Настана грешка.");
+        const errorMsg = result.error || "Настана грешка.";
+        setError(errorMsg);
+
+        // Parse field errors if available
+        if (result.fieldErrors) {
+          setFieldErrors(result.fieldErrors);
+        }
+
+        toast.error("❌ " + errorMsg);
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err) {
-      setError("Настана грешка при зачувување.");
+      const errorMsg = "Настана грешка при зачувување.";
+      setError(errorMsg);
+      toast.error("❌ " + errorMsg);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setIsSubmitting(false);
     }
@@ -94,7 +123,7 @@ export function DeathForm({ initialData, deathId }) {
         </div>
       )}
 
-      {/* Податоци за Умрениот */}
+      {/* 1. Основни податоци за умрениот */}
       <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
         <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
           ✝️ Податоци за Умрениот
@@ -145,12 +174,13 @@ export function DeathForm({ initialData, deathId }) {
             }
             value={formData.deceased.firstName}
             onChange={(val) => updateField("deceased", "firstName", val)}
+            error={fieldErrors["deceased.firstName"]}
             required
           />
 
           <AutocompleteInput
             label="Татково име"
-            field="firstName"
+            field="fatherName"
             type="deceased"
             gender="male"
             value={formData.deceased.fatherName}
@@ -163,6 +193,7 @@ export function DeathForm({ initialData, deathId }) {
             type="deceased"
             value={formData.deceased.lastName}
             onChange={(val) => updateField("deceased", "lastName", val)}
+            error={fieldErrors["deceased.lastName"]}
             required
           />
 
@@ -194,13 +225,67 @@ export function DeathForm({ initialData, deathId }) {
             ]}
             allowCustom={true}
           />
+        </div>
+      </section>
 
-          <Input
+      {/* 2. Место и датум на умирање */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          🕯️ Умирање
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <Select
+            label="Место каде умрел"
+            value={formData.death.place}
+            onChange={(val) => updateField("death", "place", val)}
+            options={PLACES}
+            allowCustom={true}
+          />
+
+          <DateInputPartial
+            label="Датум на умирање"
+            value={formData.death.date}
+            onChange={(val) => updateField("death", "date", val)}
+            error={fieldErrors["death.date.year"]}
+            required
+          />
+        </div>
+      </section>
+
+      {/* 3. Датум и место на погреб */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          ⛪ Погреб
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <DateInputPartial
+            label="Датум на погреб"
+            value={formData.burial.date}
+            onChange={(val) => updateField("burial", "date", val)}
+          />
+
+          <Select
+            label="Место на погреб"
+            value={formData.burial.place}
+            onChange={(val) => updateField("burial", "place", val)}
+            options={PLACES}
+            allowCustom={true}
+          />
+        </div>
+      </section>
+
+      {/* 4. Место и дата на раѓање */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          📍 Раѓање
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <Select
             label="Место на раѓање"
             value={formData.deceased.birthPlace}
-            onChange={(e) =>
-              updateField("deceased", "birthPlace", e.target.value)
-            }
+            onChange={(val) => updateField("deceased", "birthPlace", val)}
+            options={PLACES}
+            allowCustom={true}
           />
 
           <DateInput
@@ -211,60 +296,12 @@ export function DeathForm({ initialData, deathId }) {
         </div>
       </section>
 
-      {/* Податоци за Умирањето */}
+      {/* 5. Свештеник и исповед */}
       <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
         <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          🕯️ Податоци за Умирањето
+          ✟ Свештеник и Исповед
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <DateInput
-            label="Датум на умирање"
-            value={formData.death.date}
-            onChange={(val) => updateField("death", "date", val)}
-            required
-          />
-
-          <Select
-            label="Место каде умрел"
-            value={formData.death.place}
-            onChange={(val) => updateField("death", "place", val)}
-            options={["Кукуречани"]}
-            allowCustom={true}
-          />
-
-          <div className="md:col-span-2">
-            <Textarea
-              label="Од каква болест или начин на умирање"
-              value={formData.death.causeOfDeath}
-              onChange={(e) =>
-                updateField("death", "causeOfDeath", e.target.value)
-              }
-              rows={3}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Податоци за Погребот */}
-      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-          ⛪ Податоци за Погребот
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          <DateInput
-            label="Датум на погреб"
-            value={formData.burial.date}
-            onChange={(val) => updateField("burial", "date", val)}
-          />
-
-          <Select
-            label="Место на погреб"
-            value={formData.burial.place}
-            onChange={(val) => updateField("burial", "place", val)}
-            options={["Кукуречани"]}
-            allowCustom={true}
-          />
-
           <AutocompleteInput
             label="Свештеник (име и презиме)"
             field="priest"
@@ -273,15 +310,27 @@ export function DeathForm({ initialData, deathId }) {
             onChange={(val) => updateField("burial", "priestName", val)}
           />
 
-          <Select
+          <RadioToggle
             label="Дали се исповедал"
             value={formData.burial.confessed}
             onChange={(val) => updateField("burial", "confessed", val)}
-            options={[
-              { value: true, label: "Да" },
-              { value: false, label: "Не" },
-            ]}
-            allowCustom={false}
+          />
+        </div>
+      </section>
+
+      {/* 6. Причина за смрт */}
+      <section className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+          💊 Причина за Смрт
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:gap-6">
+          <Textarea
+            label="Од каква болест или начин на умирање"
+            value={formData.death.causeOfDeath}
+            onChange={(e) =>
+              updateField("death", "causeOfDeath", e.target.value)
+            }
+            rows={3}
           />
         </div>
       </section>

@@ -56,8 +56,8 @@ export function AutocompleteInput({
             value
           )}&field=${field}`;
 
-          // Додај gender само за firstName
-          if (field === "firstName" && gender) {
+          // Додај gender за firstName И fatherName
+          if ((field === "firstName" || field === "fatherName") && gender) {
             url += `&gender=${gender}`;
           }
 
@@ -127,15 +127,18 @@ export function AutocompleteInput({
           }}
           onFocus={() => setHasUserTyped(true)} // Означи кога фокусира
           autoComplete="off"
-          className={`w-full px-4 py-3 sm:px-3 sm:py-2 text-base sm:text-sm border rounded-lg sm:rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-800 ${
+          className={`w-full px-4 py-3 sm:px-3 sm:py-2 text-base sm:text-sm border rounded-lg sm:rounded-md focus:ring-2 focus:border-transparent bg-white dark:bg-gray-800 ${
             error
-              ? "border-red-500 dark:border-red-500"
-              : "border-gray-300 dark:border-gray-600"
+              ? "border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-900/10 focus:ring-red-500"
+              : "border-gray-300 dark:border-gray-600 focus:ring-primary-500"
           }`}
+          aria-invalid={error ? "true" : "false"}
           {...props}
         />
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+            ⚠️ {error}
+          </p>
         )}
       </div>
 

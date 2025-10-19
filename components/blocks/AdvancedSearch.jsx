@@ -6,6 +6,7 @@ import { DateInput } from "@/components/ui/DateInput";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
+import { CHURCHES, PLACES } from "@/components/ui/ChurchPlaceSelect";
 
 /**
  * Advanced Search за венчавања
@@ -141,7 +142,7 @@ export function AdvancedSearch() {
               label="Храм"
               value={filters.church}
               onChange={(val) => setFilters({ ...filters, church: val })}
-              options={["Свети Никола", "Св. Петка", "Св. Богородица"]}
+              options={CHURCHES}
               allowCustom={true}
             />
 
@@ -149,7 +150,7 @@ export function AdvancedSearch() {
               label="Место"
               value={filters.place}
               onChange={(val) => setFilters({ ...filters, place: val })}
-              options={["Кукуречани"]}
+              options={PLACES}
               allowCustom={true}
             />
 

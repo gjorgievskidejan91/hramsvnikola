@@ -2,6 +2,24 @@ import { getDeaths } from "@/app/actions/actionGetDeaths";
 import Link from "next/link";
 import { DeathCard } from "@/components/blocks/DeathCard";
 
+// Helper function to format partial dates
+function formatDate(dateObj) {
+  if (!dateObj || !dateObj.year) return "-";
+
+  // Year only
+  if (!dateObj.month && !dateObj.day) {
+    return `${dateObj.year}`;
+  }
+
+  // Year + Month
+  if (dateObj.month && !dateObj.day) {
+    return `${dateObj.month}/${dateObj.year}`;
+  }
+
+  // Full date
+  return `${dateObj.day}/${dateObj.month}/${dateObj.year}`;
+}
+
 export default async function UmreniPage({ searchParams }) {
   const params = await searchParams;
   const page = parseInt(params?.page || "1");
@@ -113,8 +131,7 @@ export default async function UmreniPage({ searchParams }) {
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                        {death.death.date.day}/{death.death.date.month}/
-                        {death.death.date.year}
+                        {formatDate(death.death.date)}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                         {death.deceased.firstName} {death.deceased.fatherName}{" "}

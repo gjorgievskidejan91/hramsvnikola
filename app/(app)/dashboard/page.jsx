@@ -128,7 +128,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Последни записи - Умрени */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
         <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
             Последни умрени
@@ -189,6 +189,79 @@ export default async function DashboardPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
                       {death.death.place || "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Последни записи - Крстени */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+            Последни крстени
+          </h2>
+          <Link
+            href="/krsteni"
+            className="text-primary-600 dark:text-primary-400 hover:underline"
+          >
+            Сите записи →
+          </Link>
+        </div>
+
+        {christenings.length === 0 ? (
+          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+            <p className="mb-4">Сè уште нема внесени записи.</p>
+            <Link
+              href="/krsteni/nov"
+              className="inline-block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md font-medium"
+            >
+              + Додади прв запис
+            </Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Датум на крштевање
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Име на дете
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Родители
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Место
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {christenings.map((christening) => (
+                  <tr
+                    key={christening._id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                      {christening.christening.date.day}/
+                      {christening.christening.date.month}/
+                      {christening.christening.date.year}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                      {christening.child.firstName}{" "}
+                      {christening.child.lastName || ""}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                      {christening.father.firstName} и{" "}
+                      {christening.mother.firstName}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
+                      {christening.child.birthPlace || "-"}
                     </td>
                   </tr>
                 ))}

@@ -123,16 +123,28 @@ export async function GET(request) {
           });
         } catch (err) {}
 
-        // Christenings - father firstName И fatherName
+        // Christenings - father firstName + male child + godparent
         try {
           const christenings = await Christening.find({
             $or: [
               { "father.firstName": { $regex: `^${query}`, $options: "i" } },
-              { "father.fatherName": { $regex: `^${query}`, $options: "i" } },
-              { "mother.fatherName": { $regex: `^${query}`, $options: "i" } },
+              {
+                "christening.godparentFirstName": {
+                  $regex: `^${query}`,
+                  $options: "i",
+                },
+              },
+              {
+                $and: [
+                  { "child.firstName": { $regex: `^${query}`, $options: "i" } },
+                  { "child.gender": "Машки" },
+                ],
+              },
             ],
           })
-            .select("father.firstName father.fatherName mother.fatherName")
+            .select(
+              "father.firstName christening.godparentFirstName child.firstName child.gender"
+            )
             .limit(50)
             .lean();
 
@@ -140,11 +152,18 @@ export async function GET(request) {
             if (c.father?.firstName && regex.test(c.father.firstName)) {
               allSuggestions.add(c.father.firstName);
             }
-            if (c.father?.fatherName && regex.test(c.father.fatherName)) {
-              allSuggestions.add(c.father.fatherName);
+            if (
+              c.christening?.godparentFirstName &&
+              regex.test(c.christening.godparentFirstName)
+            ) {
+              allSuggestions.add(c.christening.godparentFirstName);
             }
-            if (c.mother?.fatherName && regex.test(c.mother.fatherName)) {
-              allSuggestions.add(c.mother.fatherName);
+            if (
+              c.child?.firstName &&
+              c.child?.gender === "Машки" &&
+              regex.test(c.child.firstName)
+            ) {
+              allSuggestions.add(c.child.firstName);
             }
           });
         } catch (err) {}
@@ -245,30 +264,20 @@ export async function GET(request) {
           });
         } catch (err) {}
 
-        // Christenings - mother firstName
+        // Christenings - mother firstName + female child
         try {
           const christenings = await Christening.find({
             $or: [
               { "mother.firstName": { $regex: `^${query}`, $options: "i" } },
-              ...(field === "fatherName"
-                ? [
-                    {
-                      "father.fatherName": {
-                        $regex: `^${query}`,
-                        $options: "i",
-                      },
-                    },
-                    {
-                      "mother.fatherName": {
-                        $regex: `^${query}`,
-                        $options: "i",
-                      },
-                    },
-                  ]
-                : []),
+              {
+                $and: [
+                  { "child.firstName": { $regex: `^${query}`, $options: "i" } },
+                  { "child.gender": "Женски" },
+                ],
+              },
             ],
           })
-            .select("mother.firstName father.fatherName mother.fatherName")
+            .select("mother.firstName child.firstName child.gender")
             .limit(50)
             .lean();
 
@@ -277,18 +286,11 @@ export async function GET(request) {
               allSuggestions.add(c.mother.firstName);
             }
             if (
-              field === "fatherName" &&
-              c.father?.fatherName &&
-              regex.test(c.father.fatherName)
+              c.child?.firstName &&
+              c.child?.gender === "Женски" &&
+              regex.test(c.child.firstName)
             ) {
-              allSuggestions.add(c.father.fatherName);
-            }
-            if (
-              field === "fatherName" &&
-              c.mother?.fatherName &&
-              regex.test(c.mother.fatherName)
-            ) {
-              allSuggestions.add(c.mother.fatherName);
+              allSuggestions.add(c.child.firstName);
             }
           });
         } catch (err) {}
@@ -371,33 +373,23 @@ export async function GET(request) {
           });
         } catch (err) {}
 
-        // Christenings - children, fathers, mothers
+        // Christenings - child, father, mother, godparent (only firstName, no fatherName field)
         try {
           const christenings = await Christening.find({
             $or: [
               { "child.firstName": { $regex: `^${query}`, $options: "i" } },
               { "father.firstName": { $regex: `^${query}`, $options: "i" } },
               { "mother.firstName": { $regex: `^${query}`, $options: "i" } },
-              ...(field === "fatherName"
-                ? [
-                    {
-                      "father.fatherName": {
-                        $regex: `^${query}`,
-                        $options: "i",
-                      },
-                    },
-                    {
-                      "mother.fatherName": {
-                        $regex: `^${query}`,
-                        $options: "i",
-                      },
-                    },
-                  ]
-                : []),
+              {
+                "christening.godparentFirstName": {
+                  $regex: `^${query}`,
+                  $options: "i",
+                },
+              },
             ],
           })
             .select(
-              "child.firstName father.firstName mother.firstName father.fatherName mother.fatherName"
+              "child.firstName father.firstName mother.firstName christening.godparentFirstName"
             )
             .limit(50)
             .lean();
@@ -413,18 +405,10 @@ export async function GET(request) {
               allSuggestions.add(c.mother.firstName);
             }
             if (
-              field === "fatherName" &&
-              c.father?.fatherName &&
-              regex.test(c.father.fatherName)
+              c.christening?.godparentFirstName &&
+              regex.test(c.christening.godparentFirstName)
             ) {
-              allSuggestions.add(c.father.fatherName);
-            }
-            if (
-              field === "fatherName" &&
-              c.mother?.fatherName &&
-              regex.test(c.mother.fatherName)
-            ) {
-              allSuggestions.add(c.mother.fatherName);
+              allSuggestions.add(c.christening.godparentFirstName);
             }
           });
         } catch (err) {}
@@ -506,9 +490,17 @@ export async function GET(request) {
             { "child.lastName": { $regex: `^${query}`, $options: "i" } },
             { "father.lastName": { $regex: `^${query}`, $options: "i" } },
             { "mother.lastName": { $regex: `^${query}`, $options: "i" } },
+            {
+              "christening.godparentLastName": {
+                $regex: `^${query}`,
+                $options: "i",
+              },
+            },
           ],
         })
-          .select("child.lastName father.lastName mother.lastName")
+          .select(
+            "child.lastName father.lastName mother.lastName christening.godparentLastName"
+          )
           .limit(50)
           .lean();
 
@@ -521,6 +513,12 @@ export async function GET(request) {
           }
           if (c.mother?.lastName && regex.test(c.mother.lastName)) {
             allSuggestions.add(c.mother.lastName);
+          }
+          if (
+            c.christening?.godparentLastName &&
+            regex.test(c.christening.godparentLastName)
+          ) {
+            allSuggestions.add(c.christening.godparentLastName);
           }
         });
       } catch (err) {}

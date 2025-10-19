@@ -36,9 +36,17 @@ export async function createDeath(formData) {
     console.error("Грешка при креирање:", error);
 
     if (error.name === "ZodError") {
+      // Parse field errors
+      const fieldErrors = {};
+      error.errors.forEach((err) => {
+        const path = err.path.join(".");
+        fieldErrors[path] = err.message;
+      });
+
       return {
         success: false,
         error: "Невалидни податоци. Проверете ги полињата.",
+        fieldErrors,
       };
     }
 
@@ -93,22 +101,8 @@ function cleanFormData(data) {
     if (bd.year) bd.year = parseInt(bd.year);
   }
 
-  // Конвертирај confessed во boolean
-  if (cleaned.burial?.confessed !== undefined) {
-    if (
-      cleaned.burial.confessed === "true" ||
-      cleaned.burial.confessed === true
-    ) {
-      cleaned.burial.confessed = true;
-    } else if (
-      cleaned.burial.confessed === "false" ||
-      cleaned.burial.confessed === false
-    ) {
-      cleaned.burial.confessed = false;
-    } else {
-      delete cleaned.burial.confessed;
-    }
-  }
+  // Confessed остануваат како стринг "Да" или "Не"
+  // (не се конвертираат во boolean)
 
   // Конвертирај pageNumber
   if (cleaned.pageNumber && cleaned.pageNumber !== "") {

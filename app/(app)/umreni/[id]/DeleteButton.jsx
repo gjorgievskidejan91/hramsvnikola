@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { deleteDeath } from "@/app/actions/actionDeleteDeath";
 
 export function DeleteButton({ deathId }) {
@@ -18,12 +19,21 @@ export function DeleteButton({ deathId }) {
     }
 
     setIsDeleting(true);
+
+    // Show loading toast
+    const loadingToast = toast.loading("Се брише записот...");
+
     const result = await deleteDeath(deathId);
 
+    toast.dismiss(loadingToast);
+
     if (result.success) {
-      router.push("/umreni");
+      toast.success("✅ Записот е успешно избришан!");
+      setTimeout(() => {
+        router.push("/umreni");
+      }, 500);
     } else {
-      alert(result.error || "Настана грешка");
+      toast.error("❌ " + (result.error || "Настана грешка"));
       setIsDeleting(false);
     }
   };
